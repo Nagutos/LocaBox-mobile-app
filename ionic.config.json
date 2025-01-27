@@ -1,0 +1,7 @@
+{
+  "name": "LocaBox",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}
