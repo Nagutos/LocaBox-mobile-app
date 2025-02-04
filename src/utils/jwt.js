@@ -1,0 +1,3 @@
+modules.exports = {
+    token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtYWlsIjoicmF0aW9AcmF0aW8uZnIiLCJwYXNzd29yZCI6Im5pcXVlIiwiaWF0IjoxNTE2MjM5MDIyfQ.KVwojnCY5iVWoKoiBFZprT0-8qeXTYCy8rjLTneYnuo"
+}
