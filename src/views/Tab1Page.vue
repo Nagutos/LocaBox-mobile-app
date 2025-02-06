@@ -48,7 +48,8 @@
 <script setup lang="ts">
   import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue';
   import { ref } from "vue";
-  import { generateJWT, verifyJWT } from "@/utils/auth"; 
+  // import { generateJWT, verifyJWT } from "@/utils/auth"; 
+  import axios from 'axios';
 
 // Déclaration réactive des variables
 const email = ref("");
@@ -62,25 +63,25 @@ const handleLogin = async () => {
     console.log("Erreur: Un champ est vide !");
     return;
   }
-
   if(email.value.match(
       /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     )){
     try {
-      // Générer le JWT avec le payload
-      const token = await generateJWT({email: email.value, password: password.value});
-      console.log("✅ Token généré:", token);
-
-      // Optionnel : Vérifier le token ou l'envoyer à un backend
-      const decoded = await verifyJWT(token);
-      console.log("Token décodé:", decoded);
+      // Récupère le JWT
+      const response = await axios.post('http://localhost/LocaBox/api/auth/login', {
+        email: email.value,
+        password: password.value
+      });
+      const token = response.data.token;
+      localStorage.setItem('token', token);
+      console.log(token);
     } catch (error) {
-      console.error("Erreur lors de la génération du JWT:", error);
+      console.error("Erreur lors de la récuperation du JWT:", error);
+      errorMessage.value = "Email ou mots de passe incorrect.";
     }
   }else{
     errorMessage.value = "Email non valide.";
   }
-  // Perform any further actions here, such as API authentication
 };
 </script>
 
