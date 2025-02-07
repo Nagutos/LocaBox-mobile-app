@@ -1,4 +1,4 @@
-import { jwtVerify, SignJWT } from "jose";
+import { jwtDecrypt, jwtVerify, SignJWT } from "jose";
 
 // Clé secrète pour signer le JWT (à stocker en variable d'env dans un projet réel)
 const secretKey = new TextEncoder().encode("super-secret-key");

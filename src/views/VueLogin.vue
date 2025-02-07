@@ -8,7 +8,7 @@
     <ion-content :fullscreen="true">
       <ion-grid>
         <ion-title class="title">LocaBox</ion-title>
-
+        <br>
         <!-- Email Input (lié à email) -->
         <ion-input
           :value="email"
@@ -48,10 +48,12 @@
 <script setup lang="ts">
   import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue';
   import { ref } from "vue";
+  import { useRouter } from 'vue-router';
   // import { generateJWT, verifyJWT } from "@/utils/auth"; 
   import axios from 'axios';
 
 // Déclaration réactive des variables
+const router = useRouter();
 const email = ref("");
 const password = ref("");
 const errorMessage = ref("");
@@ -74,6 +76,8 @@ const handleLogin = async () => {
       });
       const token = response.data.token;
       localStorage.setItem('token', token);
+      router.push('/tabs/codes');
+      errorMessage.value = "";
       console.log(token);
     } catch (error) {
       console.error("Erreur lors de la récuperation du JWT:", error);
@@ -100,7 +104,7 @@ ion-grid{
 .title{
   margin-top: 20px;
   text-align: center;
-  font-size: xx-large;
+  font-size: xxx-large;
   font-weight: bold;
   background-image: linear-gradient(to right, rgb(3, 238, 3), blue); /* Dégradé du vert au bleu */
   -webkit-background-clip: text;  /* Applique le dégradé au texte */

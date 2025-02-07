@@ -3,11 +3,11 @@
     <ion-tabs>
       <ion-router-outlet></ion-router-outlet>
       <ion-tab-bar slot="bottom">
-        <ion-tab-button tab="tab1" href="/tabs/tab1">
+        <ion-tab-button tab="login" href="/tabs/login">
           <ion-icon aria-hidden="true" :icon="person" />
           <ion-label>Connexion</ion-label>
         </ion-tab-button>
-        <ion-tab-button tab="tab2" href="/tabs/tab2">
+        <ion-tab-button tab="codes" href="/tabs/codes">
           <ion-icon aria-hidden="true" :icon="key" />
           <ion-label>Codes</ion-label>
         </ion-tab-button>
