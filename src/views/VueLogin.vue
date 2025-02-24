@@ -46,10 +46,9 @@
 </template>
 
 <script setup lang="ts">
-  import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue';
+  import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, } from '@ionic/vue';
   import { ref } from "vue";
-  import { useRouter } from 'vue-router';
-  // import { generateJWT, verifyJWT } from "@/utils/auth"; 
+  import { useRouter } from 'vue-router';; 
   import axios from 'axios';
 
 // Déclaration réactive des variables
@@ -78,7 +77,6 @@ const handleLogin = async () => {
       localStorage.setItem('token', token);
       router.push('/tabs/codes');
       errorMessage.value = "";
-      console.log(token);
     } catch (error) {
       console.error("Erreur lors de la récuperation du JWT:", error);
       errorMessage.value = "Email ou mots de passe incorrect.";
