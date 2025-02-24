@@ -18,39 +18,46 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardTitle, IonCardHeader, IonCardContent } from '@ionic/vue';
 import ExploreContainer from '@/components/ExploreContainer.vue';
 import axios from 'axios';
 import { ref,onMounted } from "vue";
 import { decodeJwt } from 'jose';
 
+//Définition du type pour TypeScript
+interface Info {
+  name: string;
+  id_box: number;
+  current_code: string;
+}
+
+//Déclaration du token JWT
 const token = localStorage.getItem('token') ?? '';
-const data = ref([]);
-const error = ref(null);
+
+//Déclaration du tableau data avec le bon type
+const data = ref<Info[]>([]);
 const loading = ref(true);
 
+//Fonction pour récupérer les données depuis l'API
 const fetchData = async () => {
-  let user_data = decodeJwt(token);
-  console.log(user_data);
   try {
-    const response = await axios.get('http://localhost/LocaBox/api/main/code?id_user=' + user_data["id_user_box"], {
-      headers: {
-        Authorization: `Bearer ${token}` // Ajouter le JWT dans le header
-      }
-    });
+    let user_data = decodeJwt(token);
+    console.log("Données utilisateur:", user_data);
+    const response = await axios.get<{ name: string; id_box: number; current_code: string }[]>(
+      `http://localhost/LocaBox/api/main/code?id_user=${user_data["id_user_box"]}`, 
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
     data.value = response.data;
-    console.log("Données dans la fonction",data.value)
-    return data.value
+    console.log("Données reçues :", data.value);
   } catch (error) {
-      console.error('Erreur:', error);
+    console.error('Erreur lors de la récupération des données:', error);
   } finally {
-      loading.value = false;
+    loading.value = false;
   }
 };
 
-onMounted(() => {
-    fetchData(); // Exécuter la fonction au montage du composant
-  });
+//Exécuter fetchData() au montage du composant
+onMounted(fetchData);
 </script>
 
 <style>

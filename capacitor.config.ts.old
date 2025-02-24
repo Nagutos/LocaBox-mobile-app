@@ -1,9 +1,9 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.locabox.app',
+  appId: 'io.ionic.starter',
   appName: 'LocaBox',
-  webDir: 'public'
+  webDir: 'dist'
 };
 
 export default config;
