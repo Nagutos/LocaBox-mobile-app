@@ -29,8 +29,6 @@ const routes: Array<RouteRecordRaw> = [
         path: 'codes',
         component: () => import('@/views/VueCodes.vue'),
         beforeEnter: (to, from, next) => {
-          console.log('Route cible (to)', to);
-          console.log('Route précédente (from)', from);
           if (!isAuthenticated()) {
             next('/tabs/login'); // Redirige vers la connexion si pas connecté
           } else {

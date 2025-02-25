@@ -9,34 +9,25 @@
       <ion-grid>
         <ion-title class="title">LocaBox</ion-title>
         <br>
-        <!-- Email Input (lié à email) -->
         <ion-input
-          :value="email"
-          @ionInput="(e: InputEvent) => email = (e.target as HTMLInputElement).value"
+          v-model="email"
           label="Email"
           type="email"
           label-placement="floating"
           fill="outline"
         ></ion-input>
-        <br />
-
-        <!-- Password Input (lié à password) -->
+        <br>
         <ion-input
-          :value="password"
-          @ionInput="(e: InputEvent) => password = (e.target as HTMLInputElement).value"
+          v-model="password"
           label="Mot de passe"
           type="password"
           label-placement="floating"
           fill="outline"
         ></ion-input>
         <br />
-
-        <!-- Connexion Button -->
         <ion-button @click="handleLogin" shape="round" class="centered-button">
           Connexion
         </ion-button>
-
-        <!-- Error Message -->
         <ion-text v-if="errorMessage" class="error" color="danger">
           {{ errorMessage }}
         </ion-text>
@@ -46,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-  import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, } from '@ionic/vue';
+  import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonInput, IonButton, IonText, IonGrid} from '@ionic/vue';
   import { ref } from "vue";
   import { useRouter } from 'vue-router';; 
   import axios from 'axios';
@@ -57,32 +48,38 @@ const email = ref("");
 const password = ref("");
 const errorMessage = ref("");
 
-// Fonction pour afficher les valeurs
+// Fonction de connexion
 const handleLogin = async () => {
-  if (!email.value.trim() || !password.value.trim()) {
-    errorMessage.value = "Veuillez remplir tous les champs.";
-    console.log("Erreur: Un champ est vide !");
-    return;
-  }
-  if(email.value.match(
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-    )){
-    try {
-      // Récupère le JWT
-      const response = await axios.post('http://localhost/LocaBox/api/auth/login', {
-        email: email.value,
-        password: password.value
-      });
-      const token = response.data.token;
-      localStorage.setItem('token', token);
-      router.push('/tabs/codes');
-      errorMessage.value = "";
-    } catch (error) {
-      console.error("Erreur lors de la récuperation du JWT:", error);
-      errorMessage.value = "Email ou mots de passe incorrect.";
+  try {
+    if (!email.value.trim() || !password.value.trim()) {
+      errorMessage.value = "Veuillez remplir tous les champs.";
+      return;
     }
-  }else{
-    errorMessage.value = "Email non valide.";
+
+    // Vérification du format de l'email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.value)) {
+      errorMessage.value = "Email non valide.";
+      return;
+    }
+
+    // Requête API
+    const response = await axios.post('http://localhost/LocaBox/api/auth/login', {
+      email: email.value,
+      password: password.value
+    });
+
+    // Stocker le token JWT
+    const token = response.data.token;
+    localStorage.setItem('token', token);
+
+    // Redirection après connexion
+    router.push('/tabs/codes');
+    errorMessage.value = "";
+
+  } catch (error) {
+    console.error("Erreur lors de la récupération du JWT:", error);
+    errorMessage.value = "Email ou mot de passe incorrect.";
   }
 };
 </script>

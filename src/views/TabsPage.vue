@@ -7,7 +7,7 @@
           <ion-icon aria-hidden="true" :icon="person" />
           <ion-label>Connexion</ion-label>
         </ion-tab-button>
-        <ion-tab-button tab="codes" href="/tabs/codes">
+        <ion-tab-button tab="codes" href="/tabs/codes" :disabled="!isAuthenticated()">
           <ion-icon aria-hidden="true" :icon="key" />
           <ion-label>Codes</ion-label>
         </ion-tab-button>
@@ -20,4 +20,8 @@
 <script setup lang="ts">
   import { IonTabBar, IonTabButton, IonTabs, IonLabel, IonIcon, IonPage, IonRouterOutlet } from '@ionic/vue';
   import { key, person } from 'ionicons/icons';
+
+  const isAuthenticated = () => {
+    return !!localStorage.getItem('token'); // Vérifie si le token existe
+  };
 </script>
