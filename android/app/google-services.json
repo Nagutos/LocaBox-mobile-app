@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "523024269629",
+    "project_id": "locabox-bfb0f",
+    "storage_bucket": "locabox-bfb0f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:523024269629:android:6535817d4a4819471d4554",
+        "android_client_info": {
+          "package_name": "com.locabox.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXCWNH1I4nVXrUT_6ArjExpR0A-vEcsgE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

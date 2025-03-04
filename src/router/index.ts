@@ -35,7 +35,7 @@ const routes: Array<RouteRecordRaw> = [
             next(); // Continue vers /tabs/codes
           }
         }
-      }
+      },
     ]
   }
 ];
