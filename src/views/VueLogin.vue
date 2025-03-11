@@ -44,7 +44,9 @@
   import { useRouter } from 'vue-router';
   import { Keyboard } from '@capacitor/keyboard';
   import { Capacitor } from '@capacitor/core';
+  import { setupFCMListener } from '@/main'
   import axios from 'axios';
+
 
 // Déclaration réactive des variables
 const router = useRouter();
@@ -73,7 +75,7 @@ const handleLogin = async () => {
       email: email.value,
       password: password.value
     });
-
+    localStorage.removeItem('token');
     // Stocker le token JWT
     const token = response.data.token;
     localStorage.setItem('token', token);
@@ -82,6 +84,7 @@ const handleLogin = async () => {
     email.value = ""; 
     password.value = "";
     errorMessage.value = "";
+    setupFCMListener();
     router.push('/tabs/codes');
   } catch (error) {
     console.error("Erreur lors de la récupération du JWT:", error);

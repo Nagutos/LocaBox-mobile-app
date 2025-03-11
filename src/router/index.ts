@@ -1,12 +1,7 @@
 import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
+import { isAuthenticated, isTokenExpired } from '@/utils/jwt'
 import TabsPage from '../views/TabsPage.vue'
-
-const isAuthenticated = () => {
-  const token = localStorage.getItem('token'); // Vérifie si le token existe
-  return !!token; // Retourne true si un token est présent, sinon false
-};
-
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -29,8 +24,9 @@ const routes: Array<RouteRecordRaw> = [
         path: 'codes',
         component: () => import('@/views/VueCodes.vue'),
         beforeEnter: (to, from, next) => {
-          if (!isAuthenticated()) {
-            next('/tabs/login'); // Redirige vers la connexion si pas connecté
+          if (!isAuthenticated() || isTokenExpired()) {
+            localStorage.removeItem('token'); // Supprime le token expiré
+            next('/tabs/login'); // Redirige vers login
           } else {
             next(); // Continue vers /tabs/codes
           }

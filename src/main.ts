@@ -2,8 +2,11 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router';
 import { IonicVue } from '@ionic/vue';
+import { isTokenExpired } from '@/utils/jwt'
+import { decodeJwt } from 'jose';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { LocalNotifications } from '@capacitor/local-notifications';
+import axios from 'axios';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/vue/css/core.css';
@@ -30,31 +33,26 @@ import '@ionic/vue/css/display.css';
 
 /* @import '@ionic/vue/css/palettes/dark.always.css'; */
 /* @import '@ionic/vue/css/palettes/dark.class.css'; */
-/*import '@ionic/vue/css/palettes/dark.system.css';*/
+/* import '@ionic/vue/css/palettes/dark.system.css'; */
 
 /* Theme variables */
 import './theme/variables.css';
-
-const app = createApp(App)
-  .use(IonicVue)
-  .use(router);
-
-
-// Demander la permission et planifier une notification
-LocalNotifications.requestPermissions().then(permission => {
-  if (permission.display === 'granted') {
-    LocalNotifications.schedule({
-      notifications: [
-        {
-          title: 'Bienvenue !',
-          body: 'Votre application est prête.',
-          id: 1,
-          schedule: { at: new Date(Date.now() + 1000) }, // Après 1s
-        }
-      ]
-    });
+import { defineComponent } from 'vue';
+import { IonApp, IonRouterOutlet } from '@ionic/vue';
+export default defineComponent({
+  name: 'App',
+  components: {
+    IonApp,
+    IonRouterOutlet
   }
 });
+
+  interface JwtPayload {
+    exp: number;  // Expiration du token (timestamp UNIX)
+    user_data?: { // Objet contenant les infos de l'utilisateur
+      id_user_box: number;
+    };
+  }
 
 // Initialisation des notifications push
 PushNotifications.requestPermissions().then(permission => {
@@ -66,13 +64,51 @@ PushNotifications.requestPermissions().then(permission => {
 });
 
 // Obtenez le token pour envoyer des notifications push
-PushNotifications.addListener('registration', (token: any) => {
-  console.log('Token de notification push:', token.value);
-});
+export const setupFCMListener = () => {
+  PushNotifications.addListener('registration', async (token: any) => {
+    const jwtToken = localStorage.getItem('token'); // Récupère le token JWT
+    if (!jwtToken || isTokenExpired()) {
+      console.warn("Token JWT expiré ou inexistant. Suppression du token.");
+      localStorage.removeItem('token'); // Supprime le token expiré
+      return;
+    }
+
+    try {
+      const decoded = decodeJwt<JwtPayload>(jwtToken);
+      const userId = Number(decoded.id_user_box);
+
+      if (!userId) {
+        console.error("Impossible de récupérer l'ID utilisateur.");
+        return;
+      }
+
+      // Envoyer le token FCM au serveur
+      const response = await axios.post('https://ext.epid-vauban.fr/locabox-api/api/Auth/updateFCM', { 
+        fcm: token.value,
+        id_user: userId
+      });
+
+      console.log("FCM mis à jour avec succès :", response.data);
+    } catch (error) {
+      console.error("Erreur lors de l'envoi du token FCM:", error);
+    }
+  })
+};
 
 // Écoute des notifications reçues
-PushNotifications.addListener('pushNotificationReceived', (notification: any) => {
+PushNotifications.addListener('pushNotificationReceived', async (notification: any) => {
   console.log('Notification reçue:', notification);
+  await LocalNotifications.schedule({
+    notifications: [
+      {
+        title: notification.title || 'Nouvelle notification',
+        body: notification.body || 'Vous avez une nouvelle notification',
+        id: Math.floor(Math.random() * 10000),
+        schedule: { at: new Date(Date.now() + 1000) }, // Affiche immédiatement
+        sound: 'default',
+      },
+    ],
+  });
 });
 
 // Écoute des notifications ouvertes
@@ -80,6 +116,12 @@ PushNotifications.addListener('pushNotificationActionPerformed', (notification: 
   console.log('Action sur notification:', notification);
 });
 
+
+const app = createApp(App)
+  .use(IonicVue)
+  .use(router);
+
 router.isReady().then(() => {
   app.mount('#app');
+  setupFCMListener();
 });

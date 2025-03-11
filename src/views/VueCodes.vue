@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardTitle, IonCardHeader, IonCardContent, IonButton, IonButtons, IonIcon } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardTitle, IonCardHeader, IonCardContent, IonButton, toastController, IonIcon } from '@ionic/vue';
 import { reloadOutline } from 'ionicons/icons';
 import axios from 'axios';
 import { ref,onMounted } from "vue";
@@ -58,8 +58,25 @@ const fetchData = async () => {
 
 // Gestion du rafraîchissement
 const handleRefreshButton = async () => {
-  console.log('Manual refresh triggered');
-  await fetchData();
+  try {
+    await fetchData();
+    const toast = await toastController.create({
+      message: 'Données mises à jour !',
+      duration: 2000,
+      position: 'middle',
+      cssClass: 'custom-toast'
+    });
+    await toast.present();
+  } catch (error) {
+    const errorToast = await toastController.create({
+      message: 'Erreur lors de la mise à jour des données.',
+      duration: 3000,
+      color: 'danger',
+      position: 'middle',
+      cssClass: 'custom-toast'
+    });
+    await errorToast.present();
+  }
 };
 
 //Exécuter fetchData() au montage du composant
@@ -140,4 +157,25 @@ ion-card-content {
   font-weight: bold;
   color: #0a3d62; /* Bleu plus foncé pour contraster */
 }
+
+.custom-toast {
+  --background: white !important; /* Fond blanc */
+  --color: black !important; /* Texte noir */
+  --border-radius: 12px; /* Coins arrondis */
+  --box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Ombre légère */
+  --padding: 12px 16px; /* Ajoute un peu d’espace */
+  text-align: center;
+  font-weight: bold;
+}
+
+/* 🔹 Ajuste la position du toast pour qu'il soit au-dessus de la navbar */
+.custom-toast .toast-wrapper {
+  bottom: 80px !important; /* 🔥 Monte le toast au-dessus de la navbar */
+  left: 50%;
+  transform: translateX(-50%); /* Centre le toast */
+  max-width: 90%;
+  border-radius: 12px; /* Coins arrondis */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Ombre légère */
+}
+
 </style>
