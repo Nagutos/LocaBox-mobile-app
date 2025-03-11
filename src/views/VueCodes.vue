@@ -12,14 +12,16 @@
         </ion-card-header>
         <ion-card-content class="code">Code : {{info.current_code}}</ion-card-content>
       </ion-card>
+      <ion-button class="refresh-button" @click="handleRefreshButton" :disabled="loading">
+        <ion-icon :icon="reloadOutline"></ion-icon>
+      </ion-button>
     </ion-content>
-    <ExploreContainer name="Tab 2 page" />
   </ion-page>
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardTitle, IonCardHeader, IonCardContent } from '@ionic/vue';
-import ExploreContainer from '@/components/ExploreContainer.vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardTitle, IonCardHeader, IonCardContent, IonButton, toastController, IonIcon } from '@ionic/vue';
+import { reloadOutline } from 'ionicons/icons';
 import axios from 'axios';
 import { ref,onMounted } from "vue";
 import { decodeJwt } from 'jose';
@@ -41,7 +43,7 @@ const loading = ref(true);
 //Fonction pour récupérer les données depuis l'API
 const fetchData = async () => {
   try {
-    let user_data = decodeJwt(token);
+    const user_data = decodeJwt(token);
     const response = await axios.get<{ name: string; id_box: number; current_code: string }[]>(
       `https://ext.epid-vauban.fr/locabox-api/api/main/code?id_user=${user_data["id_user_box"]}`, 
       { headers: { Authorization: `Bearer ${token}` } }
@@ -53,6 +55,30 @@ const fetchData = async () => {
     loading.value = false;
   }
 };
+
+// Gestion du rafraîchissement
+const handleRefreshButton = async () => {
+  try {
+    await fetchData();
+    const toast = await toastController.create({
+      message: 'Données mises à jour !',
+      duration: 2000,
+      position: 'middle',
+      cssClass: 'custom-toast'
+    });
+    await toast.present();
+  } catch (error) {
+    const errorToast = await toastController.create({
+      message: 'Erreur lors de la mise à jour des données.',
+      duration: 3000,
+      color: 'danger',
+      position: 'middle',
+      cssClass: 'custom-toast'
+    });
+    await errorToast.present();
+  }
+};
+
 //Exécuter fetchData() au montage du composant
 onMounted(fetchData);
 </script>
@@ -61,6 +87,7 @@ onMounted(fetchData);
 ion-content {
   --background: #eef5ff; /* Fond clair pour contraster avec les cartes */
   padding: 10px;
+  min-height: 100vh; /* Assurer que le contenu est défilable */
 }
 
 /* Style des cartes */
@@ -95,6 +122,34 @@ ion-card-content {
   font-weight: bold;
 }
 
+.refresh-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  background-color: #4A90E2; /* Bleu pour correspondre au design */
+  color: white;
+  border-radius: 50%; /* Bouton rond */
+  width: 60px; /* Taille du bouton */
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  transition: opacity 0.3s ease-in-out, transform 0.2s;
+}
+
+/* Effet d'opacité quand le bouton est désactivé */
+.refresh-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Animation au clic */
+.refresh-button:active {
+  transform: scale(0.9);
+}
+
 /* Code affiché */
 .code {
   margin-top: 10px;
@@ -102,4 +157,25 @@ ion-card-content {
   font-weight: bold;
   color: #0a3d62; /* Bleu plus foncé pour contraster */
 }
+
+.custom-toast {
+  --background: white !important; /* Fond blanc */
+  --color: black !important; /* Texte noir */
+  --border-radius: 12px; /* Coins arrondis */
+  --box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Ombre légère */
+  --padding: 12px 16px; /* Ajoute un peu d’espace */
+  text-align: center;
+  font-weight: bold;
+}
+
+/* 🔹 Ajuste la position du toast pour qu'il soit au-dessus de la navbar */
+.custom-toast .toast-wrapper {
+  bottom: 80px !important; /* 🔥 Monte le toast au-dessus de la navbar */
+  left: 50%;
+  transform: translateX(-50%); /* Centre le toast */
+  max-width: 90%;
+  border-radius: 12px; /* Coins arrondis */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Ombre légère */
+}
+
 </style>

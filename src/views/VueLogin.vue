@@ -8,26 +8,28 @@
     <ion-content :fullscreen="true">
       <ion-grid :class="{ 'keyboard-open': isKeyboardOpen }">
         <ion-title class="title">LocaBox</ion-title>
-        <br>
-        <ion-input
-          v-model="email"
-          label="Email"
-          type="email"
-          label-placement="floating"
-          fill="outline"
-        ></ion-input>
-        <br>
-        <ion-input
-          v-model="password"
-          label="Mot de passe"
-          type="password"
-          label-placement="floating"
-          fill="outline"
-        ></ion-input>
-        <br />
-        <ion-button @click="handleLogin" shape="round" class="centered-button">
-          Connexion
-        </ion-button>
+        <form @submit.prevent="handleLogin">
+          <ion-input
+            v-model="email"
+            label="Email"
+            type="email"
+            label-placement="floating"
+            fill="outline"
+          ></ion-input>
+          <br>
+          <ion-input
+            v-model="password"
+            label="Mot de passe"
+            type="password"
+            autocomplete="current-password"
+            label-placement="floating"
+            fill="outline"
+          ></ion-input>
+          <br />
+          <ion-button type="submit" shape="round" class="centered-button">
+            Connexion
+          </ion-button>
+        </form>
         <ion-text v-if="errorMessage" class="error" color="danger">
           {{ errorMessage }}
         </ion-text>
@@ -42,7 +44,9 @@
   import { useRouter } from 'vue-router';
   import { Keyboard } from '@capacitor/keyboard';
   import { Capacitor } from '@capacitor/core';
+  import { setupFCMListener } from '@/main'
   import axios from 'axios';
+
 
 // Déclaration réactive des variables
 const router = useRouter();
@@ -71,7 +75,7 @@ const handleLogin = async () => {
       email: email.value,
       password: password.value
     });
-
+    localStorage.removeItem('token');
     // Stocker le token JWT
     const token = response.data.token;
     localStorage.setItem('token', token);
@@ -80,6 +84,7 @@ const handleLogin = async () => {
     email.value = ""; 
     password.value = "";
     errorMessage.value = "";
+    setupFCMListener();
     router.push('/tabs/codes');
   } catch (error) {
     console.error("Erreur lors de la récupération du JWT:", error);
@@ -107,12 +112,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-ion-input{
-  display: flex;
-  justify-content: center; /* Centrer horizontalement */
-  align-items: center;     /* Centrer verticalement */
-}
-
 ion-grid {
   display: flex;
   flex-direction: column;
@@ -125,39 +124,58 @@ ion-grid {
   transform: translate(-50%, -50%);
 }
 
-.title{
-  margin-top: 20px;
-  text-align: center;
-  font-size: xxx-large;
-  font-weight: bold;
-  background-image: linear-gradient(to right, rgb(9, 171, 235), rgb(5, 41, 161)); /* Dégradé du vert au bleu */
-  -webkit-background-clip: text;  /* Applique le dégradé au texte */
-  color: transparent; /* Rendre le texte transparent pour voir le dégradé */
+/* Centrer et styliser le formulaire */
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
 
+/* Ajuster les inputs pour bien s'afficher */
+ion-input {
+  width: 90%;
+  max-width: 400px; /* Empêche les inputs d'être trop larges */
+  --padding-start: 10px;
+  --padding-end: 10px;
+}
+
+/* Centrer et styliser le bouton */
 .centered-button {
   display: flex;
   justify-content: center; /* Centrer horizontalement */
   align-items: center;     /* Centrer verticalement */
+  width: 90%;
+  max-width: 400px;
+  margin-top: 10px;
 }
 
-.error{
+/* Erreur alignée correctement */
+.error {
   padding-top: 10px;
   display: flex;
-  justify-content: center; /* Centrer horizontalement */
-  align-items: center;     /* Centrer verticalement */
+  justify-content: center;
+  align-items: center;
   font-size: large;
   font-weight: bolder;
   color: rgb(225, 20, 20);
 }
 
-ion-button {
-  --padding-top: 15px;
-  --padding-bottom: 15px;
+/* Gestion du titre */
+.title {
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: xxx-large;
+  font-weight: bold;
+  background-image: linear-gradient(to right, rgb(9, 171, 235), rgb(5, 41, 161)); /* Dégradé du vert au bleu */
+  -webkit-background-clip: text;  /* Applique le dégradé au texte pour Webkit */
+  background-clip: text;  /* Applique le dégradé au texte pour autres navigateurs */
+  color: transparent; /* Rendre le texte transparent pour voir le dégradé */
 }
 
+/* Gestion du clavier sur mobile */
 .keyboard-open {
-  top: 30%; /* Ajuste la position en fonction du clavier */
+  top: 30%;
   transform: translate(-50%, -30%);
 }
 
