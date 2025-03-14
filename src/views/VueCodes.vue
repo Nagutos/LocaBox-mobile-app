@@ -1,16 +1,13 @@
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>Codes</ion-title>
-      </ion-toolbar>
-    </ion-header>
+    <AppHeader title="Codes" />
     <ion-content :fullscreen="true">
       <ion-card color="primary" v-for="(info, index) in data" :key="index">
         <ion-card-header>
-          <ion-card-title>Bâtiment {{info.name}} : Box {{info.id_box}}</ion-card-title>
+          <ion-card-title>{{ info.name }} : Box {{ info.id_box }}</ion-card-title>
         </ion-card-header>
-        <ion-card-content class="code">Code : {{info.current_code}}</ion-card-content>
+        <ion-card-subtitle>Fin de reservation : <br> {{ formatDate(info.end_reservation_date) }}</ion-card-subtitle>
+        <ion-card-content class="code">Code : {{ info.current_code }}</ion-card-content>
       </ion-card>
       <ion-button class="refresh-button" @click="handleRefreshButton" :disabled="loading">
         <ion-icon :icon="reloadOutline"></ion-icon>
@@ -20,17 +17,20 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardTitle, IonCardHeader, IonCardContent, IonButton, toastController, IonIcon } from '@ionic/vue';
+import AppHeader from "@/components/AppHeader.vue";
+import { IonPage, IonContent, IonCard, IonCardTitle, IonCardHeader, IonCardContent, IonCardSubtitle, IonButton, toastController, IonIcon} from '@ionic/vue';
 import { reloadOutline } from 'ionicons/icons';
 import axios from 'axios';
 import { ref,onMounted } from "vue";
 import { decodeJwt } from 'jose';
+
 
 //Définition du type pour TypeScript
 interface Info {
   name: string;
   id_box: number;
   current_code: string;
+  end_reservation_date: string;
 }
 
 //Déclaration du token JWT
@@ -44,11 +44,12 @@ const loading = ref(true);
 const fetchData = async () => {
   try {
     const user_data = decodeJwt(token);
-    const response = await axios.get<{ name: string; id_box: number; current_code: string }[]>(
+    const response = await axios.get<{ name: string; id_box: number; current_code: string; end_reservation_date: string}[]>(
       `https://ext.epid-vauban.fr/locabox-api/api/main/code?id_user=${user_data["id_user_box"]}`, 
       { headers: { Authorization: `Bearer ${token}` } }
     );
     data.value = response.data;
+    console.log(data.value);
   } catch (error) {
     console.error('Erreur lors de la récupération des données:', error);
   } finally {
@@ -76,6 +77,27 @@ const handleRefreshButton = async () => {
       cssClass: 'custom-toast'
     });
     await errorToast.present();
+  }
+};
+
+const formatDate = (dateString: string | null) => {
+  if (!dateString) return "Date inconnue";
+
+  try {
+    // Remplacement de l'espace par 'T' pour éviter les erreurs de conversion
+    const date = new Date(dateString.replace(" ", "T"));
+
+    if (isNaN(date.getTime())) return "Format invalide";
+
+    return date.toLocaleDateString("fr-FR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }) + ` à ${date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`;
+  } catch (error) {
+    console.error("Erreur de formatage de la date :", error);
+    return "Erreur de formatage";
   }
 };
 
@@ -118,8 +140,16 @@ ion-card-title {
 ion-card-content {
   font-size: 1.1rem;
   text-align: center;
-  padding: 15px;
+  padding: 1px;
   font-weight: bold;
+}
+
+ion-card-subtitle {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #d32f2f; /* Rouge pour attirer l'attention */
+  text-align: center;
+  margin-top: 10px;
 }
 
 .refresh-button {
@@ -152,7 +182,6 @@ ion-card-content {
 
 /* Code affiché */
 .code {
-  margin-top: 10px;
   font-size: 1.4rem;
   font-weight: bold;
   color: #0a3d62; /* Bleu plus foncé pour contraster */
@@ -166,6 +195,8 @@ ion-card-content {
   --padding: 12px 16px; /* Ajoute un peu d’espace */
   text-align: center;
   font-weight: bold;
+  --bottom: 80px !important; /* 🔥 Monte le toast au-dessus de la navbar */
+  --width: 90%;
 }
 
 /* 🔹 Ajuste la position du toast pour qu'il soit au-dessus de la navbar */
