@@ -95,6 +95,38 @@ export const setupFCMListener = () => {
   })
 };
 
+// Obtenez le token pour envoyer des notifications push
+export const deleteFCM = async () => { 
+  try {
+    const jwtToken = localStorage.getItem("token");
+
+    if (!jwtToken || isTokenExpired()) {
+      console.warn("Token JWT expiré ou inexistant. Suppression du token.");
+      localStorage.removeItem("token"); // Supprime le token expiré
+      return;
+    }
+
+    const decoded = decodeJwt<JwtPayload>(jwtToken);
+
+    if (!decoded || !decoded.id_user_box) {
+      console.error("Impossible de récupérer l'ID utilisateur.");
+      return;
+    }
+
+    const userId = Number(decoded.id_user_box);
+
+    // Envoyer le token FCM au serveur
+    const response = await axios.post(
+      "https://ext.epid-vauban.fr/locabox-api/api/Auth/removeFCM",
+      { id_user: userId }
+    );
+
+    console.log("FCM supprimé avec succès :", response.data);
+  } catch (error) {
+    console.error("Erreur lors de la suppression du token FCM :", error);
+  }
+};
+
 // Écoute des notifications reçues
 PushNotifications.addListener('pushNotificationReceived', async (notification: any) => {
   console.log('Notification reçue:', notification);
@@ -123,5 +155,4 @@ const app = createApp(App)
 
 router.isReady().then(() => {
   app.mount('#app');
-  setupFCMListener();
 });
