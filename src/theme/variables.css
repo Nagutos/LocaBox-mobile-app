@@ -1,2 +1,103 @@
 /* For information on how to create your own theme, please see:
 http://ionicframework.com/docs/theming/ */
+
+ion-content {
+  --background: #eef5ff; /* Fond clair pour contraster avec les cartes */
+  padding: 10px;
+  min-height: 100vh; /* Assurer que le contenu est défilable */
+}
+
+/* Style des cartes */
+ion-card {
+  background: linear-gradient(
+    #89cff0,
+    #4a90e2
+  ); /* Dégradé bleu clair à bleu profond */
+  color: #1b3a57; /* Bleu foncé pour un bon contraste */
+  border-radius: 15px; /* Coins arrondis */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Ombre douce */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 15px; /* Espacement entre les cartes */
+}
+
+/* En-tête des cartes */
+ion-card-header {
+  background: rgba(255, 255, 255, 0.4); /* Léger effet de transparence */
+  padding: 10px 15px;
+  border-radius: 15px 15px 0 0;
+}
+
+/* Titre */
+ion-card-title {
+  font-size: 1.3rem;
+  text-align: center;
+  font-weight: bolder;
+}
+
+/* Contenu des cartes */
+ion-card-content {
+  font-size: 1.1rem;
+  text-align: center;
+  padding: 1px;
+  font-weight: bold;
+}
+
+ion-card-subtitle {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #d32f2f; /* Rouge pour attirer l'attention */
+  text-align: center;
+  margin-top: 10px;
+}
+
+ion-grid {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Centre verticalement */
+  align-items: center; /* Centre horizontalement */
+  width: 100%; /* Prend toute la largeur */
+  position: absolute;
+  top: 47%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Centrer et styliser le formulaire */
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* Ajuster les inputs pour bien s'afficher */
+ion-input {
+  width: 90%;
+  max-width: 400px; /* Empêche les inputs d'être trop larges */
+  --padding-start: 10px;
+  --padding-end: 10px;
+}
+
+ion-header {
+  --background: #4a90e2;
+  color: white;
+}
+
+ion-title {
+  font-size: 1.4rem;
+}
+
+ion-popover {
+  --height: initial !important; /* Ajuste la hauteur automatiquement */
+  --width: auto !important;
+  --max-width: 200px;
+  --border-radius: 10px;
+  --box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  --background: white;
+  overflow: hidden !important; /* Empêche le dépassement du contenu */
+}
+
+ion-item {
+  --min-height: 40px; /* Ajuste si nécessaire */
+  padding: 0; /* Supprime le padding interne */
+}
