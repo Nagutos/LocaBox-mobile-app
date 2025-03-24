@@ -40,12 +40,9 @@ import {
 } from "@ionic/vue";
 import { ellipsisHorizontal, key, person } from "ionicons/icons";
 import { ref, onMounted, onUnmounted } from "vue";
+import { isAuthenticated } from "@/utils/jwt";
 
 const isFooterHidden = ref(false);
-
-const isAuthenticated = () => {
-  return !!localStorage.getItem("token"); // Vérifie si le token existe
-};
 
 // Fonction pour détecter le scroll
 const handleScroll = () => {
