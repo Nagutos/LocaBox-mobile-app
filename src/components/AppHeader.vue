@@ -24,8 +24,8 @@ import {
 } from "@ionic/vue";
 import { logOutOutline } from "ionicons/icons";
 import { useRouter } from "vue-router";
-// import { deleteFCM } from "@/main";
 import { isTokenExpired, isAuthenticated } from "@/utils/jwt";
+// import { deleteFCM } from "@/main";
 
 // Accepter un titre en prop
 const props = defineProps<{ title: string }>();
@@ -48,6 +48,7 @@ const handleLogout = async () => {
 
   try {
     localStorage.removeItem("token");
+    localStorage.clear();
     router.push("/tabs/login");
     const toast = await toastController.create({
       message: "Vous vous êtes déconnecté avec succès.",

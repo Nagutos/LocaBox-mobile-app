@@ -86,20 +86,19 @@ const handleLogin = async () => {
       }
     );
     localStorage.removeItem("token");
-    // Stocker le token JWT
     const token = response.data.token;
     localStorage.setItem("token", token);
 
-    // Redirection après connexion
     email.value = "";
     password.value = "";
     errorMessage.value = "";
-    await setupFCMListener();
-    console.log("Execute FCM listener.");
-    router.push("/tabs/codes");
+    router.push("/tabs/codes"); // Redirection après connexion
   } catch (error) {
     console.error("Erreur lors de la récupération du JWT:", error);
     errorMessage.value = "Email ou mot de passe incorrect.";
+  } finally {
+    console.log("Execute FCM listener.");
+    await setupFCMListener();
   }
 };
 

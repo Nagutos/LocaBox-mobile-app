@@ -16,6 +16,9 @@
           >Code : {{ info.current_code }}</ion-card-content
         >
       </ion-card>
+      <ion-text v-if="errorMessage" class="error" color="danger">
+        {{ errorMessage }}
+      </ion-text>
       <ion-button
         class="refresh-button"
         @click="handleRefreshButton"
@@ -38,6 +41,7 @@ import {
   IonCardContent,
   IonCardSubtitle,
   IonButton,
+  IonText,
   toastController,
   IonIcon,
   onIonViewWillEnter,
@@ -62,6 +66,7 @@ const token = localStorage.getItem("token") ?? "";
 //Déclaration du tableau data avec le bon type
 const data = ref<Info[]>([]);
 const loading = ref(true);
+const errorMessage = ref("");
 const router = useIonRouter();
 
 //Fonction pour récupérer les données depuis l'API
@@ -79,7 +84,14 @@ const fetchData = async () => {
       `https://ext.epid-vauban.fr/locabox-api/api/main/code?id_user=${user_data["id_user_box"]}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    data.value = response.data;
+    if (response.data.length === 0) {
+      console.log("Aucune donnée disponible.");
+      data.value = [];
+      errorMessage.value = "Aucun code lié à votre compte.";
+    } else {
+      data.value = response.data;
+      errorMessage.value = "";
+    }
     console.log(data.value);
   } catch (error) {
     console.error("Erreur lors de la récupération des données:", error);
@@ -113,7 +125,6 @@ const handleRefreshButton = async () => {
 
 const formatDate = (dateString: string | null) => {
   if (!dateString) return "Date inconnue";
-
   try {
     // Remplacement de l'espace par 'T' pour éviter les erreurs de conversion
     const date = new Date(dateString.replace(" ", "T"));
@@ -210,5 +221,15 @@ forceReload();
   max-width: 90%;
   border-radius: 12px; /* Coins arrondis */
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Ombre légère */
+}
+
+.error {
+  padding-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: large;
+  font-weight: bolder;
+  color: rgb(225, 20, 20);
 }
 </style>
