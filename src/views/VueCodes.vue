@@ -4,9 +4,7 @@
     <ion-content :fullscreen="true">
       <ion-card color="primary" v-for="(info, index) in data" :key="index">
         <ion-card-header>
-          <ion-card-title
-            >{{ info.name }} : Box {{ info.id_box }}</ion-card-title
-          >
+          <ion-card-title>{{ info.name }} : Box {{ info.num }}</ion-card-title>
         </ion-card-header>
         <ion-card-subtitle
           >Fin de reservation : <br />
@@ -31,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import AppHeader from "@/components/AppHeader.vue";
+import AppHeader from '@/components/AppHeader.vue';
 import {
   IonPage,
   IonContent,
@@ -46,27 +44,27 @@ import {
   IonIcon,
   onIonViewWillEnter,
   useIonRouter,
-} from "@ionic/vue";
-import { reloadOutline } from "ionicons/icons";
-import axios from "axios";
-import { ref } from "vue";
-import { decodeJwt } from "jose";
+} from '@ionic/vue';
+import { reloadOutline } from 'ionicons/icons';
+import axios from 'axios';
+import { ref } from 'vue';
+import { decodeJwt } from 'jose';
 
 //Définition du type pour TypeScript
 interface Info {
   name: string;
-  id_box: number;
+  num: number;
   current_code: string;
   end_reservation_date: string;
 }
 
 //Déclaration du token JWT
-const token = localStorage.getItem("token") ?? "";
+const token = localStorage.getItem('token') ?? '';
 
 //Déclaration du tableau data avec le bon type
 const data = ref<Info[]>([]);
 const loading = ref(true);
-const errorMessage = ref("");
+const errorMessage = ref('');
 const router = useIonRouter();
 
 //Fonction pour récupérer les données depuis l'API
@@ -76,25 +74,25 @@ const fetchData = async () => {
     const response = await axios.get<
       {
         name: string;
-        id_box: number;
+        num: number;
         current_code: string;
         end_reservation_date: string;
       }[]
     >(
-      `https://ext.epid-vauban.fr/locabox-api/api/main/code?id_user=${user_data["id_user_box"]}`,
+      `https://ext.epid-vauban.fr/locabox-api/api/main/code?id_user=${user_data['id_user_box']}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     if (response.data.length === 0) {
-      console.log("Aucune donnée disponible.");
+      console.log('Aucune donnée disponible.');
       data.value = [];
-      errorMessage.value = "Aucun code lié à votre compte.";
+      errorMessage.value = 'Aucun code lié à votre compte.';
     } else {
       data.value = response.data;
-      errorMessage.value = "";
+      errorMessage.value = '';
     }
     console.log(data.value);
   } catch (error) {
-    console.error("Erreur lors de la récupération des données:", error);
+    console.error('Erreur lors de la récupération des données:', error);
   } finally {
     loading.value = false;
   }
@@ -105,55 +103,55 @@ const handleRefreshButton = async () => {
   try {
     await fetchData();
     const toast = await toastController.create({
-      message: "Données mises à jour !",
+      message: 'Données mises à jour !',
       duration: 2000,
-      position: "middle",
-      cssClass: "custom-toast",
+      position: 'middle',
+      cssClass: 'custom-toast',
     });
     await toast.present();
   } catch (error) {
     const errorToast = await toastController.create({
-      message: "Erreur lors de la mise à jour des données.",
+      message: 'Erreur lors de la mise à jour des données.',
       duration: 3000,
-      color: "danger",
-      position: "middle",
-      cssClass: "custom-toast",
+      color: 'danger',
+      position: 'middle',
+      cssClass: 'custom-toast',
     });
     await errorToast.present();
   }
 };
 
 const formatDate = (dateString: string | null) => {
-  if (!dateString) return "Date inconnue";
+  if (!dateString) return 'Date inconnue';
   try {
     // Remplacement de l'espace par 'T' pour éviter les erreurs de conversion
-    const date = new Date(dateString.replace(" ", "T"));
+    const date = new Date(dateString.replace(' ', 'T'));
 
-    if (isNaN(date.getTime())) return "Format invalide";
+    if (isNaN(date.getTime())) return 'Format invalide';
 
     return (
-      date.toLocaleDateString("fr-FR", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-        year: "numeric",
+      date.toLocaleDateString('fr-FR', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
       }) +
-      ` à ${date.toLocaleTimeString("fr-FR", {
-        hour: "2-digit",
-        minute: "2-digit",
+      ` à ${date.toLocaleTimeString('fr-FR', {
+        hour: '2-digit',
+        minute: '2-digit',
       })}`
     );
   } catch (error) {
-    console.error("Erreur de formatage de la date :", error);
-    return "Erreur de formatage";
+    console.error('Erreur de formatage de la date :', error);
+    return 'Erreur de formatage';
   }
 };
 
 // Redirection forcée pour recharger la page
 const forceReload = () => {
-  router.replace("/refresh"); // Première redirection
+  router.replace('/refresh'); // Première redirection
   setTimeout(() => {
-    router.replace("/tabs/codes"); // Retour après un court délai
+    router.replace('/tabs/codes'); // Retour après un court délai
   }, 100); // Délai de 100ms pour s'assurer que la redirection a eu lieu
 };
 
